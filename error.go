@@ -7,13 +7,13 @@ import (
 
 var (
 	// ErrorZoneCharacters indicates an incorrect amount of characters was passed to ParseISOZone.
-	ErrZoneCharacters = errors.New("Expected at least 5 characters for zone information")
+	ErrZoneCharacters = errors.New("iso8601: Expected at least 5 characters for zone information")
 
 	// ErrRemainingData indicates that there is extra data after a `Z` character.
-	ErrRemainingData = errors.New("Unexepected remaining data after `Z`")
+	ErrRemainingData = errors.New("iso8601: Unexepected remaining data after `Z`")
 
 	// ErrNotString indicates that a non string type was passed to the UnmarshalJSON method of `Time`.
-	ErrNotString = errors.New("invalid json type (expected string)")
+	ErrNotString = errors.New("iso8601: Invalid json type (expected string)")
 )
 
 func newUnexpectedCharacterError(c byte) error {
@@ -26,5 +26,5 @@ type UnexpectedCharacterError struct {
 }
 
 func (e *UnexpectedCharacterError) Error() string {
-	return fmt.Sprintf("Unexpected character `%c`", e.Character)
+	return fmt.Sprintf("iso8601: Unexpected character `%c`", e.Character)
 }

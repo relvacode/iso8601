@@ -19,6 +19,6 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 		return ErrNotString
 	}
 	var err error
-	t.Time, err = Parse(string(b))
+	t.Time, err = Parse(b)
 	return err
 }

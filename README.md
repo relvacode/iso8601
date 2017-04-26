@@ -7,14 +7,12 @@ A fast ISO8601 date parser for Go
 import "github.com/relvacode/iso8601"
 ```
 
-## Background
+When working with dates in Go, especially with API communication the default `RFC3339` time layout is too restrictive to support the wide range of dates supported in the ISO8061 specification.
 
-Whilst working with dates, especially with API communication the default `RFC3339` time layout is too restrictive to support the wide range of dates supported in the ISO8061 specification.
-
-This library is intended to work with any date from any language that follows the ISO8601 specification.
+This library intends to parse any date that looks like the ISO8601 standard into native Go time.
 
 ## Performance
 
-This library is fast with no allocations needed to parse a full date.
+This library is efficient with no allocations needed to parse a full date.
 
-    BenchmarkParse-8        20000000               106 ns/op               0 B/op          0 allocs/op
+    BenchmarkParse-8        20000000               100 ns/op               0 B/op          0 allocs/op

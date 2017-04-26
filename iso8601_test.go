@@ -85,7 +85,7 @@ func Assert(t *testing.T, x, y int) {
 func TestParse(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.Using, func(t *testing.T) {
-			d, err := Parse(c.Using)
+			d, err := Parse([]byte(c.Using))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -106,8 +106,9 @@ func TestParse(t *testing.T) {
 }
 
 func BenchmarkParse(b *testing.B) {
+	x := []byte("2017-04-24T09:41:34.502Z")
 	for i := 0; i < b.N; i++ {
-		_, err := Parse("2017-04-24T09:41:34.502Z")
+		_, err := Parse(x)
 		if err != nil {
 			b.Fatal(err)
 		}

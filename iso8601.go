@@ -1,7 +1,9 @@
-// Package iso8061 is a utility for parsing ISO8601 datetime strings in Go.
-// The standard library's RFC3339 reference layout is too strict for working with 3rd party APIs, especially ones written in other languages like Java.
+// Package iso8061 is a utility for parsing ISO8601 datetime strings into native Go times.
+// The standard library's RFC3339 reference layout can be too strict for working with 3rd party APIs,
+// especially ones written in other languages.
 //
-// This library intends to support the full ISO8061 date specification with as much performance as possible.
+// Use the provided `Time` structure instead of the default `time.Time` to provide ISO8601 support for JSON responses.
+//
 package iso8601
 
 import (
@@ -37,7 +39,7 @@ const (
 //
 // ParseISO zone will only look at the first 3 characters of the input string.
 // The expectation is that all zone offsets are in hour intervals.
-func ParseISOZone(inp string) (*time.Location, error) {
+func ParseISOZone(inp []byte) (*time.Location, error) {
 	if len(inp) < 3 {
 		return nil, ErrZoneCharacters
 	}
@@ -71,8 +73,16 @@ func ParseISOZone(inp string) (*time.Location, error) {
 	return time.FixedZone("", offset*360), nil
 }
 
+func Fuzz(data []byte) int {
+	_, err := Parse(data)
+	if err == nil {
+		return 1
+	}
+	return 0
+}
+
 // Parse parses a full ISO8601 compliant date string into a time.Time object.
-func Parse(inp string) (time.Time, error) {
+func Parse(inp []byte) (time.Time, error) {
 	var (
 		Y  uint
 		M  uint

@@ -10,45 +10,82 @@ type TestAPIResponse struct {
 	Nptr Time
 }
 
-var TestAPIData = []byte(`
+var ShortTest = TestCase{
+	Using: "2001-11-13",
+	Year:  2001, Month: 11, Day: 13,
+}
+
+var StructTestData = []byte(`
 {
   "Ptr": "2017-04-26T11:13:04+01:00",
   "Nptr": "2017-04-26T11:13:04+01:00"
 }
 `)
 
+var StructTest = TestCase{
+	Year: 2017, Month: 04, Day: 26,
+	Hour: 11, Minute: 13, Second: 04,
+	Zone: 1,
+}
+
 func TestTime_UnmarshalJSON(t *testing.T) {
-	t.Run("invalid", func(t *testing.T) {
+	t.Run("short", func(t *testing.T) {
 		var b = []byte(`"2001-11-13"`)
 
 		tn := new(Time)
 		if err := tn.UnmarshalJSON(b); err != nil {
 			t.Fatal(err)
 		}
-		Assert(t, 2001, tn.Year())
-		Assert(t, 11, int(tn.Month()))
-		Assert(t, 13, tn.Day())
+
+		if y := tn.Year(); y != ShortTest.Year {
+			t.Errorf("Year = %d; want %d", y, ShortTest.Year)
+		}
+
+		if m := int(tn.Month()); m != ShortTest.Month {
+			t.Errorf("Month = %d; want %d", m, ShortTest.Month)
+		}
+
+		if d := tn.Day(); d != ShortTest.Day {
+			t.Errorf("Day = %d; want %d", d, ShortTest.Day)
+		}
 
 		err := tn.UnmarshalJSON([]byte(`2001-11-13`))
 		if err != ErrNotString {
 			t.Fatal(err)
 		}
 		if err == nil {
-			t.Fatal("Expected an error")
+			t.Fatal("Expected an error from unmarshal")
 		}
 	})
 
-	t.Run("valid", func(t *testing.T) {
+	t.Run("struct", func(t *testing.T) {
 		resp := new(TestAPIResponse)
-		if err := json.Unmarshal(TestAPIData, resp); err != nil {
+		if err := json.Unmarshal(StructTestData, resp); err != nil {
 			t.Fatal(err)
 		}
-		Assert(t, 2017, resp.Ptr.Year())
-		Assert(t, 26, resp.Ptr.Day())
-		Assert(t, 04, resp.Ptr.Second())
 
-		Assert(t, 2017, resp.Nptr.Year())
-		Assert(t, 26, resp.Nptr.Day())
-		Assert(t, 04, resp.Nptr.Second())
+		t.Run("ptr", func(t *testing.T) {
+			if y := resp.Ptr.Year(); y != StructTest.Year {
+				t.Errorf("Ptr: Year = %d; want %d", y, StructTest.Year)
+			}
+			if d := resp.Ptr.Day(); d != StructTest.Day {
+				t.Errorf("Ptr: Day = %d; want %d", d, StructTest.Day)
+			}
+			if s := resp.Ptr.Second(); s != StructTest.Second {
+				t.Errorf("Ptr: Second = %d; want %d", s, StructTest.Second)
+			}
+		})
+
+		t.Run("noptr", func(t *testing.T) {
+			if y := resp.Nptr.Year(); y != StructTest.Year {
+				t.Errorf("NoPtr: Year = %d; want %d", y, StructTest.Year)
+			}
+			if d := resp.Nptr.Day(); d != StructTest.Day {
+				t.Errorf("NoPtr: Day = %d; want %d", d, StructTest.Day)
+			}
+			if s := resp.Nptr.Second(); s != StructTest.Second {
+				t.Errorf("NoPtr: Second = %d; want %d", s, StructTest.Second)
+			}
+		})
 	})
 }

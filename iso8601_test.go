@@ -76,12 +76,6 @@ var cases = []TestCase{
 	},
 }
 
-func Assert(t *testing.T, x, y int) {
-	if x != y {
-		t.Fatalf("Expected %d but got %d", x, y)
-	}
-}
-
 func TestParse(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.Using, func(t *testing.T) {
@@ -90,16 +84,34 @@ func TestParse(t *testing.T) {
 				t.Fatal(err)
 			}
 			t.Log(d)
-			Assert(t, c.Year, d.Year())
-			Assert(t, c.Month, int(d.Month()))
-			Assert(t, c.Day, d.Day())
-			Assert(t, c.Hour, d.Hour())
-			Assert(t, c.Minute, d.Minute())
-			Assert(t, c.Second, d.Second())
-			Assert(t, c.MilliSecond, d.Nanosecond()/int(milliToNano))
+
+			if y := d.Year(); y != c.Year {
+				t.Errorf("Year = %d; want %d", y, c.Year)
+			}
+			if m := int(d.Month()); m != c.Month {
+				t.Errorf("Month = %d; want %d", m, c.Month)
+			}
+			if d := d.Day(); d != c.Day {
+				t.Errorf("Day = %d; want %d", d, c.Day)
+			}
+			if h := d.Hour(); h != c.Hour {
+				t.Errorf("Hour = %d; want %d", h, c.Hour)
+			}
+			if m := d.Minute(); m != c.Minute {
+				t.Errorf("Minute = %d; want %d", m, c.Minute)
+			}
+			if s := d.Second(); s != c.Second {
+				t.Errorf("Second = %d; want %d", s, c.Second)
+			}
+
+			if ms := d.Nanosecond() / int(milliToNano); ms != c.MilliSecond {
+				t.Errorf("Millisecond = %d; want %d", ms, c.MilliSecond)
+			}
 
 			_, z := d.Zone()
-			Assert(t, c.Zone, z/3600)
+			if offset := z / 3600; offset != c.Zone {
+				t.Errorf("Zone = %d (%d); want %d", offset, z, c.Zone)
+			}
 		})
 
 	}

@@ -73,13 +73,7 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 	return time.FixedZone("", offset*360), nil
 }
 
-func Fuzz(data []byte) int {
-	_, err := Parse(data)
-	if err == nil {
-		return 1
-	}
-	return 0
-}
+
 
 // Parse parses a full ISO8601 compliant date string into a time.Time object.
 func Parse(inp []byte) (time.Time, error) {

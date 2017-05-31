@@ -1,6 +1,7 @@
 package iso8601
 
 import (
+	"bytes"
 	"encoding/json"
 	"testing"
 )
@@ -19,6 +20,13 @@ var StructTestData = []byte(`
 {
   "Ptr": "2017-04-26T11:13:04+01:00",
   "Nptr": "2017-04-26T11:13:04+01:00"
+}
+`)
+
+var NullTestData = []byte(`
+{
+  "Ptr": null,
+  "Nptr": null
 }
 `)
 
@@ -87,5 +95,27 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 				t.Errorf("NoPtr: Second = %d; want %d", s, StructTest.Second)
 			}
 		})
+	})
+
+	t.Run("null", func(t *testing.T) {
+		resp := new(TestAPIResponse)
+		if err := json.Unmarshal(NullTestData, resp); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func BenchmarkCheckNull(b *testing.B) {
+	var n = []byte("null")
+
+	b.Run("compare", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			bytes.Compare(n, n)
+		}
+	})
+	b.Run("exact", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			null(n)
+		}
 	})
 }

@@ -4,10 +4,6 @@ import (
 	"testing"
 )
 
-const (
-	milliToNano uint = 1000000
-)
-
 type TestCase struct {
 	Using string
 
@@ -78,6 +74,34 @@ var cases = []TestCase{
 		Hour: 9, Minute: 41, Second: 34,
 		Zone: 0,
 	},
+	{
+		Using: "2017-04-24T09:41:34.089",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 89,
+		Zone:        0,
+	},
+	{
+		Using: "2017-04-24T09:41:34.009",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 9,
+		Zone:        0,
+	},
+	{
+		Using: "2017-04-24T09:41:34.893",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 893,
+		Zone:        0,
+	},
+	{
+		Using: "2017-04-24T09:41:34.89312523Z",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 893,
+		Zone:        0,
+	},
 }
 
 func TestParse(t *testing.T) {
@@ -108,8 +132,8 @@ func TestParse(t *testing.T) {
 				t.Errorf("Second = %d; want %d", s, c.Second)
 			}
 
-			if ms := d.Nanosecond() / int(milliToNano); ms != c.MilliSecond {
-				t.Errorf("Millisecond = %d; want %d", ms, c.MilliSecond)
+			if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
+				t.Errorf("Millisecond = %d; want %d (%d nanoseconds)", ms, c.MilliSecond, d.Nanosecond())
 			}
 
 			_, z := d.Zone()

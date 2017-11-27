@@ -14,6 +14,10 @@ var (
 
 	// ErrNotString indicates that a non string type was passed to the UnmarshalJSON method of `Time`.
 	ErrNotString = errors.New("iso8601: Invalid json type (expected string)")
+
+	// ErrPrecision indicates that there was too much precision (characters) given to parse
+	// for the fraction of a second of the input time.
+	ErrPrecision = errors.New("iso8601: Too many characters in fraction of second precision")
 )
 
 func newUnexpectedCharacterError(c byte) error {

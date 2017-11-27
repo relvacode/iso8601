@@ -36,6 +36,7 @@ const (
 // ParseISO zone will only look at the first 3 characters of the input string.
 // The expectation is that all zone offsets are in hour intervals.
 func ParseISOZone(inp []byte) (*time.Location, error) {
+
 	if len(inp) < 3 {
 		return nil, ErrZoneCharacters
 	}
@@ -72,19 +73,21 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 // Parse parses a full ISO8601 compliant date string into a time.Time object.
 func Parse(inp []byte) (time.Time, error) {
 	var (
-		Y  uint
-		M  uint
-		d  uint
-		h  uint
-		m  uint
-		s  uint
-		ms uint
+		Y         uint
+		M         uint
+		d         uint
+		h         uint
+		m         uint
+		s         uint
+		fraction  int
+		nfraction int = 1 //counts amount of precision for the second fraction
 	)
 
+	// Always assume UTC by default
 	var loc = time.UTC
 
 	var c uint
-	var p uint = year
+	var p = year
 
 	var i int
 parse:
@@ -93,6 +96,10 @@ parse:
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			c = c * 10
 			c += uint(inp[i]) - charStart
+
+			if p == millisecond {
+				nfraction++
+			}
 		case '-':
 			if p < second {
 				switch p {
@@ -113,7 +120,7 @@ parse:
 			case second:
 				s = c
 			case millisecond:
-				ms = c
+				fraction = int(c)
 			default:
 				return time.Time{}, newUnexpectedCharacterError(inp[i])
 			}
@@ -156,7 +163,7 @@ parse:
 			case second:
 				s = c
 			case millisecond:
-				ms = c
+				fraction = int(c)
 			default:
 				return time.Time{}, newUnexpectedCharacterError(inp[i])
 			}
@@ -170,9 +177,29 @@ parse:
 	}
 
 	// Capture remaining data
-	// Sometimes a date can end without a `T` suffix.
-	if c > 0 && p == day {
-		d = c
+	// Sometimes a date can end without a non-integer character
+	if c > 0 {
+		switch p {
+		case day:
+			d = c
+		case hour:
+			h = c
+		case minute:
+			m = c
+		case second:
+			s = c
+		case millisecond:
+			fraction = int(c)
+		}
 	}
-	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), int(ms), loc), nil
+
+	// Get the seconds fraction as nanoseconds
+	if fraction < 0 || 1e9 <= fraction {
+		return time.Time{}, ErrPrecision
+	}
+	scale := 10 - nfraction
+	for i := 0; i < scale; i++ {
+		fraction *= 10
+	}
+	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), fraction, loc), nil
 }

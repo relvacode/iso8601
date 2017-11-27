@@ -4,6 +4,10 @@ import (
 	"testing"
 )
 
+const (
+	milliToNano uint = 1000000
+)
+
 type TestCase struct {
 	Using string
 

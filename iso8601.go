@@ -21,10 +21,6 @@ const (
 )
 
 const (
-	milliToNano uint = 1000000
-)
-
-const (
 	// charStart is the binary position of the character `0`
 	charStart uint = 48
 )
@@ -178,5 +174,5 @@ parse:
 	if c > 0 && p == day {
 		d = c
 	}
-	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), int(ms*milliToNano), loc), nil
+	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), int(ms), loc), nil
 }

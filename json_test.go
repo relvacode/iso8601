@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 type TestAPIResponse struct {
@@ -101,6 +102,18 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 		resp := new(TestAPIResponse)
 		if err := json.Unmarshal(NullTestData, resp); err != nil {
 			t.Fatal(err)
+		}
+	})
+
+	t.Run("reparse", func(t *testing.T) {
+		s := time.Now().UTC()
+		data := []byte(s.Format(time.RFC3339Nano))
+		n, err := Parse(data)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !s.Equal(n) {
+			t.Fatalf("Parsing a JSON date mismatch; wanted %s; got %s", s, n)
 		}
 	})
 }

@@ -31,6 +31,13 @@ var NullTestData = []byte(`
 }
 `)
 
+var ZeroedTestData = []byte(`
+{
+  "Ptr": "0000-00-00",
+  "Nptr": "0000-00-00"
+}
+`)
+
 var StructTest = TestCase{
 	Year: 2017, Month: 04, Day: 26,
 	Hour: 11, Minute: 13, Second: 04,
@@ -101,6 +108,13 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 	t.Run("null", func(t *testing.T) {
 		resp := new(TestAPIResponse)
 		if err := json.Unmarshal(NullTestData, resp); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("time zeroed", func(t *testing.T) {
+		resp := new(TestAPIResponse)
+		if err := json.Unmarshal(ZeroedTestData, resp); err != nil {
 			t.Fatal(err)
 		}
 	})

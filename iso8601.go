@@ -90,12 +90,21 @@ func Parse(inp []byte) (time.Time, error) {
 	var p = year
 
 	var i int
+
+	var lastnum uint
 parse:
 	for ; i < len(inp); i++ {
 		switch inp[i] {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			c = c * 10
-			c += uint(inp[i]) - charStart
+			if p == day && uint(inp[i]) == 48 {
+				if lastnum == 48 {
+					c = 1
+				}
+				lastnum = 48
+			} else {
+				c += uint(inp[i]) - charStart
+			}
 
 			if p == millisecond {
 				nfraction++
@@ -104,8 +113,14 @@ parse:
 			if p < second {
 				switch p {
 				case year:
+					if c == 0 {
+						c = 1
+					}
 					Y = c
 				case month:
+					if c == 0 {
+						c = 1
+					}
 					M = c
 				default:
 					return time.Time{}, newUnexpectedCharacterError(inp[i])

@@ -28,6 +28,18 @@ var cases = []TestCase{
 		Zone:        1,
 	},
 	{
+		Using: "2017-04-24T09:41+0100",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41,
+		Zone: 1,
+	},
+	{
+		Using: "2017-04-24T09+0100",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9,
+		Zone: 1,
+	},
+	{
 		Using: "2017-04-24T",
 		Year:  2017, Month: 4, Day: 24,
 	},
@@ -56,6 +68,18 @@ var cases = []TestCase{
 		Zone:        -1,
 	},
 	{
+		Using: "2017-04-24T09:41-01:00",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41,
+		Zone: -1,
+	},
+	{
+		Using: "2017-04-24T09-01:00",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9,
+		Zone: -1,
+	},
+	{
 		Using: "2017-04-24T09:41:34-0100",
 		Year:  2017, Month: 4, Day: 24,
 		Hour: 9, Minute: 41, Second: 34,
@@ -75,11 +99,35 @@ var cases = []TestCase{
 		Zone: 0,
 	},
 	{
+		Using: "2017-04-24T09:41Z",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41,
+		Zone: 0,
+	},
+	{
+		Using: "2017-04-24T09Z",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9,
+		Zone: 0,
+	},
+	{
 		Using: "2017-04-24T09:41:34.089",
 		Year:  2017, Month: 4, Day: 24,
 		Hour: 9, Minute: 41, Second: 34,
 		MilliSecond: 89,
 		Zone:        0,
+	},
+	{
+		Using: "2017-04-24T09:41",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41,
+		Zone: 0,
+	},
+	{
+		Using: "2017-04-24T09",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9,
+		Zone: 0,
 	},
 	{
 		Using: "2017-04-24T09:41:34.009",

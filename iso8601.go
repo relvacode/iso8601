@@ -110,7 +110,7 @@ parse:
 				nfraction++
 			}
 		case '-':
-			if p < second {
+			if p < hour {
 				switch p {
 				case year:
 					if c == 0 {
@@ -132,6 +132,10 @@ parse:
 			fallthrough
 		case '+':
 			switch p {
+			case hour:
+				h = c
+			case minute:
+				m = c
 			case second:
 				s = c
 			case millisecond:
@@ -175,6 +179,10 @@ parse:
 			p++
 		case 'Z':
 			switch p {
+			case hour:
+				h = c
+			case minute:
+				m = c
 			case second:
 				s = c
 			case millisecond:

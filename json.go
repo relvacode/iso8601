@@ -24,6 +24,7 @@ type Time struct {
 	time.Time
 }
 
+// UnmarshalJSON decodes a JSON string or null into a iso8601 time
 func (t *Time) UnmarshalJSON(b []byte) error {
 	// Do not process null types
 	if null(b) {

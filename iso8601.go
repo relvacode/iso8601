@@ -1,4 +1,4 @@
-// Package iso8061 is a utility for parsing ISO8601 datetime strings into native Go times.
+// Package iso8601 is a utility for parsing ISO8601 datetime strings into native Go times.
 // The standard library's RFC3339 reference layout can be too strict for working with 3rd party APIs,
 // especially ones written in other languages.
 //
@@ -63,7 +63,7 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 		z = z * 10
 	}
 
-	var offset int = int(z)
+	var offset = int(z)
 	if neg {
 		offset = -offset
 	}
@@ -80,7 +80,7 @@ func Parse(inp []byte) (time.Time, error) {
 		m         uint
 		s         uint
 		fraction  int
-		nfraction int = 1 //counts amount of precision for the second fraction
+		nfraction = 1 //counts amount of precision for the second fraction
 	)
 
 	// Always assume UTC by default

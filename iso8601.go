@@ -32,12 +32,12 @@ const (
 //     +0100
 //     +01:00
 //     -01:00
+//     +01
+//     +01:45
+//     +0145
 //
-// ParseISO zone will only look at the first 3 characters of the input string.
-// The expectation is that all zone offsets are in hour intervals.
 func ParseISOZone(inp []byte) (*time.Location, error) {
-
-	if len(inp) < 3 {
+	if len(inp) < 3 || len(inp) > 6 {
 		return nil, ErrZoneCharacters
 	}
 	var neg bool
@@ -49,25 +49,38 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 		return nil, newUnexpectedCharacterError(inp[0])
 	}
 
+	var offset int
+
 	var z uint
+	var multiplier = uint(3600) // start with initial multiplier of hours
 	for i := 1; i < len(inp); i++ {
-		if i == 3 {
-			break
+		if i == 3 {  // next multiplier
+			offset = int(z * multiplier)
+			multiplier = 60 // multiplier for minutes
+			z = 0
+		} else { // next digit
+			z = z * 10
 		}
+
 		switch inp[i] {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			z += uint(inp[i]) - charStart
+		case ':':
+			if i != 3 {
+				return nil, newUnexpectedCharacterError(inp[i])
+			}
 		default:
 			return nil, newUnexpectedCharacterError(inp[i])
 		}
-		z = z * 10
+
 	}
 
-	var offset = int(z)
+	offset += int(z * multiplier)
+
 	if neg {
 		offset = -offset
 	}
-	return time.FixedZone("", offset*360), nil
+	return time.FixedZone("", offset), nil
 }
 
 // Parse parses a full ISO8601 compliant date string into a time.Time object.

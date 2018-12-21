@@ -16,7 +16,7 @@ type TestCase struct {
 	Second      int
 	MilliSecond int
 
-	Zone int
+	Zone float64
 }
 
 var cases = []TestCase{
@@ -150,6 +150,35 @@ var cases = []TestCase{
 		MilliSecond: 893,
 		Zone:        0,
 	},
+	{
+		Using: "2017-04-24T09:41:34.502-0530",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 502,
+		Zone:        -5.5,
+	},
+	{
+		Using: "2017-04-24T09:41:34.502+0530",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 502,
+		Zone:        5.5,
+	},
+	{
+		Using: "2017-04-24T09:41:34.502+05:30",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 502,
+		Zone:        5.5,
+	},
+
+	{
+		Using: "2017-04-24T09:41:34.502+05:45",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 502,
+		Zone:        5.75,
+	},
 }
 
 func TestParse(t *testing.T) {
@@ -185,8 +214,8 @@ func TestParse(t *testing.T) {
 			}
 
 			_, z := d.Zone()
-			if offset := z / 3600; offset != c.Zone {
-				t.Errorf("Zone = %d (%d); want %d", offset, z, c.Zone)
+			if offset := float64(z) / 3600; offset != c.Zone {
+				t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
 			}
 		})
 

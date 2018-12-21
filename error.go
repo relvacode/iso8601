@@ -7,7 +7,7 @@ import (
 
 var (
 	// ErrZoneCharacters indicates an incorrect amount of characters was passed to ParseISOZone.
-	ErrZoneCharacters = errors.New("iso8601: Expected at least 5 characters for zone information")
+	ErrZoneCharacters = errors.New("iso8601: Expected between 3 and 6 characters for zone information")
 
 	// ErrRemainingData indicates that there is extra data after a `Z` character.
 	ErrRemainingData = errors.New("iso8601: Unexepected remaining data after `Z`")

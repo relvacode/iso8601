@@ -1,20 +1,36 @@
-# iso8601
 A fast ISO8601 date parser for Go
 
-[![GoDoc](https://godoc.org/github.com/relvacode/iso8601?status.svg)](https://godoc.org/github.com/relvacode/iso8601) [![Build Status](https://travis-ci.org/relvacode/iso8601.svg?branch=master)](https://travis-ci.org/relvacode/iso8601) [![Go Report Card](https://goreportcard.com/badge/github.com/relvacode/iso8601)](https://goreportcard.com/report/github.com/relvacode/iso8601) [![cover.run](https://cover.run/go/github.com/relvacode/iso8601.svg?style=flat&tag=golang-1.10)](https://cover.run/go?tag=golang-1.10&repo=github.com%2Frelvacode%2Fiso8601)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/relvacode/iso8601) [![GoDoc](https://godoc.org/github.com/relvacode/iso8601?status.svg)](https://godoc.org/github.com/relvacode/iso8601) [![Build Status](https://travis-ci.org/relvacode/iso8601.svg?branch=master)](https://travis-ci.org/relvacode/iso8601) [![Go Report Card](https://goreportcard.com/badge/github.com/relvacode/iso8601)](https://goreportcard.com/report/github.com/relvacode/iso8601)
 
 
+```
+go get github.com/relvacode/iso8601
+```
+
+The built-in RFC3333 time layout in Go is too restrictive to support any ISO8601 date-time.
+
+This library parses any ISO8601 date into a native Go time object without regular expressions.
+
+## Usage
 
 ```go
 import "github.com/relvacode/iso8601"
+
+// iso8601.Time can be used as a drop-in replacement for time.Time with JSON responses
+type ExternalAPIResponse struct {
+	Timestamp *iso8601.Time
+}
+
+
+func main() {
+	// iso8601.ParseString can also be called directly
+	t, err := iso8601.ParseString("2020-01-02T16:20:00")
+}
 ```
 
-When working with dates in Go, especially with API communication the default `RFC3339` time layout is too restrictive to support the wide range of dates supported in the ISO8601 specification.
+## Benchmark
 
-This library intends to parse any date that looks like the ISO8601 standard into native Go time.
+```
+BenchmarkParse-16        	13364954	        77.7 ns/op	       0 B/op	       0 allocs/op
+```
 
-## Performance
-
-This library is efficient with no allocations needed to parse a full date.
-
-    BenchmarkParse-8        20000000               100 ns/op               0 B/op          0 allocs/op

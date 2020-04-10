@@ -54,7 +54,7 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 	var z uint
 	var multiplier = uint(3600) // start with initial multiplier of hours
 	for i := 1; i < len(inp); i++ {
-		if i == 3 {  // next multiplier
+		if i == 3 { // next multiplier
 			offset = int(z * multiplier)
 			multiplier = 60 // multiplier for minutes
 			z = 0
@@ -83,7 +83,7 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 	return time.FixedZone("", offset), nil
 }
 
-// Parse parses a full ISO8601 compliant date string into a time.Time object.
+// Parse parses an ISO8601 compliant date-time byte slice into a time.Time object.
 func Parse(inp []byte) (time.Time, error) {
 	var (
 		Y         uint
@@ -238,4 +238,9 @@ parse:
 		fraction *= 10
 	}
 	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), fraction, loc), nil
+}
+
+// ParseString parses an ISO8601 compliant date-time string into a time.Time object.
+func ParseString(inp string) (time.Time, error) {
+	return Parse([]byte(inp))
 }

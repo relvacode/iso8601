@@ -222,6 +222,47 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestParseString(t *testing.T) {
+	for _, c := range cases {
+		t.Run(c.Using, func(t *testing.T) {
+			d, err := ParseString(c.Using)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Log(d)
+
+			if y := d.Year(); y != c.Year {
+				t.Errorf("Year = %d; want %d", y, c.Year)
+			}
+			if m := int(d.Month()); m != c.Month {
+				t.Errorf("Month = %d; want %d", m, c.Month)
+			}
+			if d := d.Day(); d != c.Day {
+				t.Errorf("Day = %d; want %d", d, c.Day)
+			}
+			if h := d.Hour(); h != c.Hour {
+				t.Errorf("Hour = %d; want %d", h, c.Hour)
+			}
+			if m := d.Minute(); m != c.Minute {
+				t.Errorf("Minute = %d; want %d", m, c.Minute)
+			}
+			if s := d.Second(); s != c.Second {
+				t.Errorf("Second = %d; want %d", s, c.Second)
+			}
+
+			if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
+				t.Errorf("Millisecond = %d; want %d (%d nanoseconds)", ms, c.MilliSecond, d.Nanosecond())
+			}
+
+			_, z := d.Zone()
+			if offset := float64(z) / 3600; offset != c.Zone {
+				t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
+			}
+		})
+
+	}
+}
+
 func BenchmarkParse(b *testing.B) {
 	x := []byte("2017-04-24T09:41:34.502Z")
 	for i := 0; i < b.N; i++ {

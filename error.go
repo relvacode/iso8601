@@ -9,6 +9,10 @@ var (
 	// ErrZoneCharacters indicates an incorrect amount of characters was passed to ParseISOZone.
 	ErrZoneCharacters = errors.New("iso8601: Expected between 3 and 6 characters for zone information")
 
+	// ErrInvalidZone indicates an invalid timezone per the standard that doesn't violate any specific
+	// character parsing rules.
+	ErrInvalidZone = errors.New("iso8601: Specified zone is invalid")
+
 	// ErrRemainingData indicates that there is extra data after a `Z` character.
 	ErrRemainingData = errors.New("iso8601: Unexepected remaining data after `Z`")
 

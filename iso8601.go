@@ -80,6 +80,9 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 	if neg {
 		offset = -offset
 	}
+	if neg && offset == 0 {
+		return nil, ErrInvalidZone
+	}
 	return time.FixedZone("", offset), nil
 }
 

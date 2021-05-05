@@ -22,7 +22,7 @@ const (
 
 const (
 	// charStart is the binary position of the character `0`
-	charStart uint = 48
+	charStart uint = '0'
 )
 
 // ParseISOZone parses the 5 character zone information in an ISO8061 date string.
@@ -87,6 +87,7 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 }
 
 // Parse parses an ISO8601 compliant date-time byte slice into a time.Time object.
+// If any component of an input date-time is not within the expected range then an *iso8601.RangeError is returned.
 func Parse(inp []byte) (time.Time, error) {
 	var (
 		Y         uint
@@ -107,20 +108,12 @@ func Parse(inp []byte) (time.Time, error) {
 
 	var i int
 
-	var lastnum uint
 parse:
 	for ; i < len(inp); i++ {
 		switch inp[i] {
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			c = c * 10
-			if p == day && uint(inp[i]) == 48 {
-				if lastnum == 48 {
-					c = 1
-				}
-				lastnum = 48
-			} else {
-				c += uint(inp[i]) - charStart
-			}
+			c += uint(inp[i]) - charStart
 
 			if p == millisecond {
 				nfraction++
@@ -129,14 +122,8 @@ parse:
 			if p < hour {
 				switch p {
 				case year:
-					if c == 0 {
-						c = 1
-					}
 					Y = c
 				case month:
-					if c == 0 {
-						c = 1
-					}
 					M = c
 				default:
 					return time.Time{}, newUnexpectedCharacterError(inp[i])
@@ -240,6 +227,50 @@ parse:
 	for i := 0; i < scale; i++ {
 		fraction *= 10
 	}
+
+	switch {
+	case M < 1 || M > 12: // Month 1-12
+		return time.Time{}, &RangeError{
+			Value:   string(inp),
+			Element: "month",
+			Given:   int(M),
+			Min:     1,
+			Max:     12,
+		}
+	case d < 1 || int(d) > daysIn(time.Month(M), int(Y)): // Day 1-daysIn(month, year)
+		return time.Time{}, &RangeError{
+			Value:   string(inp),
+			Element: "day",
+			Given:   int(d),
+			Min:     1,
+			Max:     daysIn(time.Month(M), int(Y)),
+		}
+	case h > 23: // Hour 0-23
+		return time.Time{}, &RangeError{
+			Value:   string(inp),
+			Element: "hour",
+			Given:   int(h),
+			Min:     0,
+			Max:     23,
+		}
+	case m > 59: // Minute 0-59
+		return time.Time{}, &RangeError{
+			Value:   string(inp),
+			Element: "minute",
+			Given:   int(m),
+			Min:     0,
+			Max:     59,
+		}
+	case s > 59: // Second 0-59
+		return time.Time{}, &RangeError{
+			Value:   string(inp),
+			Element: "second",
+			Given:   int(s),
+			Min:     0,
+			Max:     59,
+		}
+	}
+
 	return time.Date(int(Y), time.Month(M), int(d), int(h), int(m), int(s), fraction, loc), nil
 }
 

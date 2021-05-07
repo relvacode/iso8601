@@ -259,6 +259,11 @@ var cases = []TestCase{
 		ShouldInvalidRange:      true,
 		RangeElementWhenInvalid: "month",
 	},
+	{
+		Using:                   "2017-13-01T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "month",
+	},
 
 	{
 		Using:                   "2017-01-00T00:00:00.000+00:00",

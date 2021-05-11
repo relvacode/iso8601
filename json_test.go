@@ -12,6 +12,11 @@ type TestAPIResponse struct {
 	Nptr Time
 }
 
+type TestStdLibAPIResponse struct {
+	Ptr  *time.Time
+	Nptr time.Time
+}
+
 var ShortTest = TestCase{
 	Using: "2001-11-13",
 	Year:  2001, Month: 11, Day: 13,
@@ -33,8 +38,8 @@ var NullTestData = []byte(`
 
 var ZeroedTestData = []byte(`
 {
-  "Ptr": "0000-00-00",
-  "Nptr": "0000-00-00"
+  "Ptr": "0001-01-01",
+  "Nptr": "0001-01-01"
 }
 `)
 
@@ -79,6 +84,17 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 		if err := json.Unmarshal(StructTestData, resp); err != nil {
 			t.Fatal(err)
 		}
+
+		stdlibResp := new(TestStdLibAPIResponse)
+		if err := json.Unmarshal(StructTestData, stdlibResp); err != nil {
+			t.Fatal(err)
+		}
+
+		t.Run("stblib parity", func(t *testing.T) {
+			if !resp.Ptr.Equal(*stdlibResp.Ptr) || !resp.Nptr.Equal(stdlibResp.Nptr) {
+				t.Fatalf("Parsed time values are not equal to standard library implementation")
+			}
+		})
 
 		t.Run("ptr", func(t *testing.T) {
 			if y := resp.Ptr.Year(); y != StructTest.Year {

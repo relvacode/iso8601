@@ -18,6 +18,43 @@ type TestCase struct {
 
 	Zone            float64
 	ShouldFailParse bool
+
+	ShouldInvalidRange      bool
+	RangeElementWhenInvalid string
+}
+
+func (tc TestCase) CheckError(err error, t *testing.T) bool {
+	if err != nil {
+		if tc.ShouldInvalidRange {
+			re, ok := err.(*RangeError)
+			if !ok {
+				t.Fatalf("Found error %s of type %T but was expecting a RangeError", err, err)
+			}
+
+			if tc.RangeElementWhenInvalid != "" && re.Element != tc.RangeElementWhenInvalid {
+				t.Fatalf("Expected a range error on %q but encountered %q: %s", tc.RangeElementWhenInvalid, re.Element, err)
+			}
+
+			return true
+		}
+		if tc.ShouldFailParse {
+			return true
+		}
+
+		t.Fatal(err)
+		return false
+	}
+
+	if err == nil && (tc.ShouldFailParse || tc.ShouldInvalidRange) {
+		reason := "fail to parse"
+		if tc.ShouldInvalidRange {
+			reason = "catch an invalid date range"
+		}
+		t.Fatalf("Expected test case %s", reason)
+		return true
+	}
+
+	return false
 }
 
 var cases = []TestCase{
@@ -201,6 +238,8 @@ var cases = []TestCase{
 		MilliSecond: 502,
 		Zone:        0,
 	},
+
+	// Invalid Parse Test Cases
 	{
 		Using:           "2017-04-24T09:41:34.502-00",
 		ShouldFailParse: true,
@@ -213,17 +252,65 @@ var cases = []TestCase{
 		Using:           "2017-04-24T09:41:34.502-00:00",
 		ShouldFailParse: true,
 	},
+
+	// Invalid Range Test Cases
+	{
+		Using:                   "2017-00-01T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "month",
+	},
+	{
+		Using:                   "2017-13-01T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "month",
+	},
+
+	{
+		Using:                   "2017-01-00T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "day",
+	},
+	{
+		Using:                   "2017-01-32T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "day",
+	},
+	{
+		Using:                   "2019-02-29T00:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "day",
+	},
+	{
+		Using:                   "2020-02-30T00:00:00.000+00:00", // Leap year
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "day",
+	},
+
+	{
+		Using:                   "2017-01-01T24:00:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "hour",
+	},
+
+	{
+		Using:                   "2017-01-01T00:60:00.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "minute",
+	},
+
+	{
+		Using:                   "2017-01-01T00:00:60.000+00:00",
+		ShouldInvalidRange:      true,
+		RangeElementWhenInvalid: "second",
+	},
 }
 
 func TestParse(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.Using, func(t *testing.T) {
 			d, err := Parse([]byte(c.Using))
-			if err != nil {
-				if c.ShouldFailParse {
-					return
-				}
-				t.Fatal(err)
+			if c.CheckError(err, t) {
+				return
 			}
 			t.Log(d)
 
@@ -263,11 +350,8 @@ func TestParseString(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.Using, func(t *testing.T) {
 			d, err := ParseString(c.Using)
-			if err != nil {
-				if c.ShouldFailParse {
-					return
-				}
-				t.Fatal(err)
+			if c.CheckError(err, t) {
+				return
 			}
 			t.Log(d)
 

@@ -36,3 +36,15 @@ type UnexpectedCharacterError struct {
 func (e *UnexpectedCharacterError) Error() string {
 	return fmt.Sprintf("iso8601: Unexpected character `%c`", e.Character)
 }
+
+type RangeError struct {
+	Value   string
+	Element string
+	Min     int
+	Max     int
+	Given   int
+}
+
+func (e *RangeError) Error() string {
+	return fmt.Sprintf("iso8601: Cannot parse %q: %s %d is not in range %d-%d", e.Value, e.Element, e.Given, e.Min, e.Max)
+}

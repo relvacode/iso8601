@@ -19,6 +19,11 @@ func null(b []byte) bool {
 
 var _ json.Unmarshaler = &Time{}
 
+// Of is a construction helper that wraps time.Time as a Time.
+func Of(t time.Time) Time {
+	return Time{Time: t}
+}
+
 // Time is a helper object for parsing ISO8061 dates as a JSON string.
 type Time struct {
 	time.Time

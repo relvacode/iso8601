@@ -146,6 +146,23 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 			t.Fatalf("Parsing a JSON date mismatch; wanted %s; got %s", s, n)
 		}
 	})
+
+	t.Run("marshal & unmarshal", func(t *testing.T) {
+		s := Of(time.Now().UTC())
+		b, err := json.Marshal(s)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		tn := new(Time)
+		if err := tn.UnmarshalJSON(b); err != nil {
+			t.Fatal(err)
+		}
+
+		if !s.Equal(tn.Time) {
+			t.Fatalf("Parsing a JSON date mismatch; wanted %s; got %s", s, tn.Time)
+		}
+	})
 }
 
 func BenchmarkCheckNull(b *testing.B) {

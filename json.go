@@ -24,10 +24,14 @@ func Of(t time.Time) Time {
 	return Time{Time: t}
 }
 
-// Time is a helper object for parsing ISO8061 dates as a JSON string.
+// Time adapts time.Time for formatting and parsing ISO8061 dates,
+// especially as a JSON string.
 type Time struct {
 	time.Time
 }
+
+// Note: there is no need to implement MarshalJSON because the embedded
+// time.Time method works correctly.
 
 // UnmarshalJSON decodes a JSON string or null into a iso8601 time
 func (t *Time) UnmarshalJSON(b []byte) error {
@@ -43,4 +47,19 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	var err error
 	t.Time, err = Parse(b)
 	return err
+}
+
+// Equal reports whether t and u represent the same time instant.
+// Two times can be equal even if they are in different locations.
+// For example, 6:00 +0200 and 4:00 UTC are Equal.
+// See the documentation on the time.Time type for the pitfalls of using ==
+// with Time values; most code should use Equal instead.
+func (t Time) Equal(u Time) bool {
+	return t.Time.Equal(u.Time)
+}
+
+// String renders the time in ISO-8601 format.
+func (t Time) String() string {
+	// time.RFC3339Nano is one of several permitted ISO-8601 formats.
+	return t.Format(time.RFC3339Nano)
 }

@@ -49,7 +49,7 @@ var StructTest = TestCase{
 	Zone: 1,
 }
 
-func TestTime_UnmarshalJSON(t *testing.T) {
+func TestTime_Marshaling(t *testing.T) {
 	t.Run("short", func(t *testing.T) {
 		var b = []byte(`"2001-11-13"`)
 
@@ -91,7 +91,7 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 		}
 
 		t.Run("stblib parity", func(t *testing.T) {
-			if !resp.Ptr.Equal(*stdlibResp.Ptr) || !resp.Nptr.Equal(stdlibResp.Nptr) {
+			if !resp.Ptr.Time.Equal(*stdlibResp.Ptr) || !resp.Nptr.Time.Equal(stdlibResp.Nptr) {
 				t.Fatalf("Parsed time values are not equal to standard library implementation")
 			}
 		})
@@ -147,6 +147,15 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 		}
 	})
 
+	t.Run("string", func(t *testing.T) {
+		t1 := time.Now().UTC()
+		s := Time{Time: t1}.String()
+		expected := t1.Format(time.RFC3339Nano)
+		if s != expected {
+			t.Fatalf("String; wanted %s; got %s", expected, s)
+		}
+	})
+
 	t.Run("marshal & unmarshal", func(t *testing.T) {
 		s := Of(time.Now().UTC())
 		b, err := json.Marshal(s)
@@ -159,7 +168,7 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if !s.Equal(tn.Time) {
+		if !s.Equal(*tn) {
 			t.Fatalf("Parsing a JSON date mismatch; wanted %s; got %s", s, tn.Time)
 		}
 	})

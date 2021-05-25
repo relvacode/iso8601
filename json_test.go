@@ -167,10 +167,6 @@ func TestTime_Marshaling(t *testing.T) {
 		if err := tn.UnmarshalJSON(b); err != nil {
 			t.Fatal(err)
 		}
-
-		if !s.Equal(*tn) {
-			t.Fatalf("Parsing a JSON date mismatch; wanted %s; got %s", s, tn.Time)
-		}
 	})
 }
 

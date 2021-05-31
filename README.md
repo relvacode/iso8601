@@ -14,7 +14,7 @@ This library parses any ISO8601 date into a native Go time object without regula
 ## Usage
 
 ```go
-import "github.com/relvacode/iso8601"
+import "github.com/relvacode/iso8601/v2"
 
 // iso8601.Time can be used as a drop-in replacement for time.Time with JSON responses
 type ExternalAPIResponse struct {

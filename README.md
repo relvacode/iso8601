@@ -4,7 +4,7 @@ A fast ISO8601 date parser for Go
 
 
 ```
-go get github.com/relvacode/iso8601
+go get github.com/relvacode/iso8601/v2
 ```
 
 The built-in RFC3333 time layout in Go is too restrictive to support any ISO8601 date-time.
@@ -38,11 +38,14 @@ BenchmarkParse-16        	13364954	        77.7 ns/op	       0 B/op	       0 all
 
   - `2.0.0` 
   
-  Time range validity checking equivalent to the standard library.
-  Note that previous versions would not validate that a given date string was in the expected range. Additionally, this version no longer accepts `0000-00-00T00:00:00` as a valid input which can be the zero time representation in other languages nor does it support leap seconds (such that the seconds field is `60`) as is the case in the [standard library](https://github.com/golang/go/issues/15247)
+  Time range validity checking is now equivalent to the standard library. Previous versions would not validate that a given date string was in the expected range. Nor does it support leap seconds (such that the seconds field is `60`), so behaving the same as the [standard library](https://github.com/golang/go/issues/15247)
+
+  Similarly, this version no longer accepts `0000-00-00T00:00:00` as a valid input, even though this can be the zero time representation in other languages.
+
   - `1.1.0` 
   
   Check for `-0` time zone
+
   - `1.0.0` 
   
   Initial release

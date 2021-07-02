@@ -3,6 +3,8 @@ package iso8601
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -49,7 +51,7 @@ var StructTest = TestCase{
 	Zone: 1,
 }
 
-func TestTime_Marshaling(t *testing.T) {
+func TestTime_Unmarshaling(t *testing.T) {
 	t.Run("short", func(t *testing.T) {
 		var b = []byte(`"2001-11-13"`)
 
@@ -155,17 +157,109 @@ func TestTime_Marshaling(t *testing.T) {
 			t.Fatalf("String; wanted %s; got %s", expected, s)
 		}
 	})
+}
 
-	t.Run("marshal & unmarshal", func(t *testing.T) {
-		s := Of(time.Now().UTC())
-		b, err := json.Marshal(s)
-		if err != nil {
-			t.Fatal(err)
+func TestTime_Marshaling(t *testing.T) {
+	t9 := Date(2017, 4, 26, 11, 13, 4, 123456789, time.UTC)
+
+	cases := []struct {
+		format     string
+		resolution time.Duration
+		expected   string
+	}{
+		{
+			format:     RFC3339,
+			resolution: time.Second,
+			expected:   "2017-04-26T11:13:04Z",
+		},
+		{
+			format:     RFC3339Milli,
+			resolution: time.Millisecond,
+			expected:   "2017-04-26T11:13:04.123Z",
+		},
+		{
+			format:     RFC3339Micro,
+			resolution: time.Microsecond,
+			expected:   "2017-04-26T11:13:04.123456Z",
+		},
+		{
+			format:     RFC3339Nano,
+			resolution: time.Nanosecond,
+			expected:   "2017-04-26T11:13:04.123456789Z",
+		},
+	}
+
+	t.Run("text marshal/unmarshal", func(t *testing.T) {
+		for _, c := range cases {
+			MarshalTextFormat = c.format
+
+			b, err := xml.Marshal(t9)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			expectedXML := fmt.Sprintf("<Time>%s</Time>", c.expected)
+			if string(b) != expectedXML {
+				t.Fatalf("wanted %s; got %s", expectedXML, string(b))
+			}
+
+			tn := Time{}
+			if err := xml.Unmarshal(b, &tn); err != nil {
+				t.Fatal(err)
+			}
+
+			expectedTime := t9.Truncate(c.resolution)
+
+			if !tn.Time.Equal(expectedTime.Time) {
+				t.Fatalf("wanted %s; got %s", expectedTime.Time, tn)
+			}
 		}
+	})
 
-		tn := new(Time)
-		if err := tn.UnmarshalJSON(b); err != nil {
-			t.Fatal(err)
+	t.Run("JSON marshal/unmarshal", func(t *testing.T) {
+		for _, c := range cases {
+			MarshalTextFormat = c.format
+
+			b, err := json.Marshal(t9)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			expectedJSON := fmt.Sprintf("%q", c.expected)
+			if string(b) != expectedJSON {
+				t.Fatalf("wanted %s; got %s", expectedJSON, string(b))
+			}
+
+			tn := new(Time)
+			if err := tn.UnmarshalJSON(b); err != nil {
+				t.Fatal(err)
+			}
+
+			expectedTime := t9.Truncate(c.resolution)
+
+			if !tn.Time.Equal(expectedTime.Time) {
+				t.Fatalf("wanted %s; got %s", expectedTime.Time, tn)
+			}
+		}
+	})
+
+	t.Run("Truncate", func(t *testing.T) {
+		tr := t9.Truncate(time.Microsecond)
+
+		expected := t9.Time.Truncate(time.Microsecond)
+
+		if !tr.Time.Equal(expected) {
+			t.Fatalf("wanted %s; got %s", expected, tr)
+		}
+	})
+
+	t.Run("Round", func(t *testing.T) {
+		r := t9.Round(time.Microsecond)
+
+		expected := t9.Time.Round(time.Microsecond)
+
+		if !r.Time.Equal(expected) {
+			t.Fatalf("wanted %s; got %s", expected, r)
 		}
 	})
 }

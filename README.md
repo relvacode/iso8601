@@ -36,6 +36,10 @@ BenchmarkParse-16        	13364954	        77.7 ns/op	       0 B/op	       0 all
 
 ## Release History
 
+  - `2.0.1`
+
+  Fixes the go.mod module.
+  
   - `2.0.0` 
   
   Time range validity checking is now equivalent to the standard library. Previous versions would not validate that a given date string was in the expected range. Nor does it support leap seconds (such that the seconds field is `60`), so behaving the same as the [standard library](https://github.com/golang/go/issues/15247)

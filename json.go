@@ -21,7 +21,8 @@ const (
 // This must not be altered concurrently.
 //
 // If there is a need to marshal using various precision formats, not just one,
-// then the values should be rounded using Truncate.
+// then the values should be rounded using Truncate. Round can also be used, but
+// note that the rounding might allow more digits to be sent.
 var MarshalTextFormat = RFC3339Nano
 
 var _ json.Unmarshaler = &Time{}

@@ -36,6 +36,11 @@ BenchmarkParse-16        	13364954	        77.7 ns/op	       0 B/op	       0 all
 
 ## Release History
 
+  - `2.1.0`
+
+  Added var MarshalTextFormat to allow reduction in precision of XML and JSON values, where this is needed by legacy systems.
+  Added methods Round, Truncate, MarshalText, MarshalJSON and UnmarshalText to assist with greater control of precision in marshaled values.
+  
   - `2.0.1`
 
   Fixes the go.mod module.

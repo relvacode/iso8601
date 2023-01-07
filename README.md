@@ -1,6 +1,6 @@
 A fast ISO8601 date parser for Go
 
-[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/relvacode/iso8601) [![GoDoc](https://godoc.org/github.com/relvacode/iso8601?status.svg)](https://godoc.org/github.com/relvacode/iso8601) [![Build Status](https://travis-ci.org/relvacode/iso8601.svg?branch=master)](https://travis-ci.org/relvacode/iso8601) [![Go Report Card](https://goreportcard.com/badge/github.com/relvacode/iso8601)](https://goreportcard.com/report/github.com/relvacode/iso8601)
+[![GoDoc](https://godoc.org/github.com/relvacode/iso8601?status.svg)](https://godoc.org/github.com/relvacode/iso8601) ![Build Status](https://github.com/relvacode/iso8601/actions/workflows/verify.yml/badge.svg) [![Go Report Card](https://goreportcard.com/badge/github.com/relvacode/iso8601)](https://goreportcard.com/report/github.com/relvacode/iso8601)
 
 
 ```
@@ -14,6 +14,8 @@ This library parses any ISO8601 date into a native Go time object without regula
 ## Usage
 
 ```go
+package main
+
 import "github.com/relvacode/iso8601"
 
 // iso8601.Time can be used as a drop-in replacement for time.Time with JSON responses

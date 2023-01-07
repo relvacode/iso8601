@@ -3,7 +3,6 @@
 // especially ones written in other languages.
 //
 // Use the provided `Time` structure instead of the default `time.Time` to provide ISO8601 support for JSON responses.
-//
 package iso8601
 
 import (
@@ -28,14 +27,13 @@ const (
 // ParseISOZone parses the 5 character zone information in an ISO8061 date string.
 // This function expects input that matches:
 //
-//     -0100
-//     +0100
-//     +01:00
-//     -01:00
-//     +01
-//     +01:45
-//     +0145
-//
+//	-0100
+//	+0100
+//	+01:00
+//	-01:00
+//	+01
+//	+01:45
+//	+0145
 func ParseISOZone(inp []byte) (*time.Location, error) {
 	if len(inp) < 3 || len(inp) > 6 {
 		return nil, ErrZoneCharacters
@@ -134,6 +132,13 @@ parse:
 			}
 			fallthrough
 		case '+':
+			if i == 0 {
+				// The ISO8601 technically allows signed year components.
+				// Go does not allow negative years, but let's allow a positive sign to be more compatible with the spec.
+				// It must be the very first character of the input (#11).
+				continue
+			}
+
 			switch p {
 			case hour:
 				h = c

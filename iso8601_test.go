@@ -238,6 +238,13 @@ var cases = []TestCase{
 		MilliSecond: 502,
 		Zone:        0,
 	},
+	{
+		Using: "+2017-04-24T09:41:34.502+00:00",
+		Year:  2017, Month: 4, Day: 24,
+		Hour: 9, Minute: 41, Second: 34,
+		MilliSecond: 502,
+		Zone:        0,
+	},
 
 	// Invalid Parse Test Cases
 	{
@@ -250,6 +257,14 @@ var cases = []TestCase{
 	},
 	{
 		Using:           "2017-04-24T09:41:34.502-00:00",
+		ShouldFailParse: true,
+	},
+	{
+		Using:           "-2017-04-24T09:41:34.502-00:00",
+		ShouldFailParse: true,
+	},
+	{
+		Using:           "2017-+04-24T09:41:34.502-00:00",
 		ShouldFailParse: true,
 	},
 

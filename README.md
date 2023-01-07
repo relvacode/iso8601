@@ -38,6 +38,9 @@ BenchmarkParse-16        	13364954	        77.7 ns/op	       0 B/op	       0 all
 
 ## Release History
 
+  - `2.1.0`
+
+  Allow a leading `+` sign in the year component [#11](https://github.com/relvacode/iso8601/issues/11)
   - `2.0.0` 
   
   Time range validity checking equivalent to the standard library.

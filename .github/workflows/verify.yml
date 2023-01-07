@@ -3,7 +3,7 @@ name: Verify
 on: [push]
 
 jobs:
-  audit:
+  go-vet-lint-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

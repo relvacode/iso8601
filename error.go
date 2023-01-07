@@ -37,6 +37,7 @@ func (e *UnexpectedCharacterError) Error() string {
 	return fmt.Sprintf("iso8601: Unexpected character `%c`", e.Character)
 }
 
+// RangeError indicates that a value is not in an expected range.
 type RangeError struct {
 	Value   string
 	Element string

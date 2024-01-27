@@ -48,7 +48,7 @@ func (tc TestCase) CheckError(err error, t *testing.T) bool {
 	if err == nil && (tc.ShouldFailParse || tc.ShouldInvalidRange) {
 		reason := "fail to parse"
 		if tc.ShouldInvalidRange {
-			reason = "catch an invalid date range"
+			reason = "to catch an invalid date range"
 		}
 		t.Fatalf("Expected test case %s", reason)
 		return true
@@ -243,6 +243,12 @@ var cases = []TestCase{
 		Year:  2017, Month: 4, Day: 24,
 		Hour: 9, Minute: 41, Second: 34,
 		MilliSecond: 502,
+		Zone:        0,
+	},
+	{
+		Using: "2017",
+		Year:  2017, Month: 1, Day: 1, Hour: 0, Minute: 0, Second: 0,
+		MilliSecond: 0,
 		Zone:        0,
 	},
 

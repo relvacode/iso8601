@@ -251,6 +251,18 @@ var cases = []TestCase{
 		MilliSecond: 0,
 		Zone:        0,
 	},
+	{
+		Using: "2017-02",
+		Year:  2017, Month: 2, Day: 1, Hour: 0, Minute: 0, Second: 0,
+		MilliSecond: 0,
+		Zone:        0,
+	},
+	{
+		Using: "2017-02-16",
+		Year:  2017, Month: 2, Day: 16, Hour: 0, Minute: 0, Second: 0,
+		MilliSecond: 0,
+		Zone:        0,
+	},
 
 	// Invalid Parse Test Cases
 	{

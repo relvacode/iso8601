@@ -87,6 +87,12 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 // Parse parses an ISO8601 compliant date-time byte slice into a time.Time object.
 // If any component of an input date-time is not within the expected range then an *iso8601.RangeError is returned.
 func Parse(inp []byte) (time.Time, error) {
+	return ParseInLocation(inp, time.UTC)
+}
+
+// ParseInLocation parses an ISO8601 compliant date-time byte slice into a time.Time object.
+// If the input does not have timezone information, it will use the given location.
+func ParseInLocation(inp []byte, loc *time.Location) (time.Time, error) {
 	var (
 		Y         uint
 		M         uint
@@ -97,9 +103,6 @@ func Parse(inp []byte) (time.Time, error) {
 		fraction  int
 		nfraction = 1 //counts amount of precision for the second fraction
 	)
-
-	// Always assume UTC by default
-	var loc = time.UTC
 
 	var c uint
 	var p = year
@@ -289,4 +292,10 @@ parse:
 // ParseString parses an ISO8601 compliant date-time string into a time.Time object.
 func ParseString(inp string) (time.Time, error) {
 	return Parse([]byte(inp))
+}
+
+// ParseStringInLocation parses an ISO8601 compliant date-time string into a time.Time object.
+// If the input does not have timezone information, it will use the given location.
+func ParseStringInLocation(inp string, loc *time.Location) (time.Time, error) {
+	return ParseInLocation([]byte(inp), loc)
 }

@@ -2,6 +2,7 @@ package iso8601
 
 import (
 	"testing"
+	"time"
 )
 
 type TestCase struct {
@@ -55,6 +56,41 @@ func (tc TestCase) CheckError(err error, t *testing.T) bool {
 	}
 
 	return false
+}
+
+func (c TestCase) Check(d time.Time, t *testing.T) {
+	if y := d.Year(); y != c.Year {
+		t.Errorf("Year = %d; want %d", y, c.Year)
+	}
+	if m := int(d.Month()); m != c.Month {
+		t.Errorf("Month = %d; want %d", m, c.Month)
+	}
+	if d := d.Day(); d != c.Day {
+		t.Errorf("Day = %d; want %d", d, c.Day)
+	}
+	if h := d.Hour(); h != c.Hour {
+		t.Errorf("Hour = %d; want %d", h, c.Hour)
+	}
+	if m := d.Minute(); m != c.Minute {
+		t.Errorf("Minute = %d; want %d", m, c.Minute)
+	}
+	if s := d.Second(); s != c.Second {
+		t.Errorf("Second = %d; want %d", s, c.Second)
+	}
+
+	if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
+		t.Errorf(
+			"Millisecond = %d; want %d (%d nanoseconds)",
+			ms,
+			c.MilliSecond,
+			d.Nanosecond(),
+		)
+	}
+
+	_, z := d.Zone()
+	if offset := float64(z) / 3600; offset != c.Zone {
+		t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
+	}
 }
 
 var cases = []TestCase{
@@ -340,83 +376,32 @@ var cases = []TestCase{
 
 func TestParse(t *testing.T) {
 	for _, c := range cases {
-		t.Run(c.Using, func(t *testing.T) {
-			d, err := Parse([]byte(c.Using))
-			if c.CheckError(err, t) {
-				return
-			}
-			t.Log(d)
-
-			if y := d.Year(); y != c.Year {
-				t.Errorf("Year = %d; want %d", y, c.Year)
-			}
-			if m := int(d.Month()); m != c.Month {
-				t.Errorf("Month = %d; want %d", m, c.Month)
-			}
-			if d := d.Day(); d != c.Day {
-				t.Errorf("Day = %d; want %d", d, c.Day)
-			}
-			if h := d.Hour(); h != c.Hour {
-				t.Errorf("Hour = %d; want %d", h, c.Hour)
-			}
-			if m := d.Minute(); m != c.Minute {
-				t.Errorf("Minute = %d; want %d", m, c.Minute)
-			}
-			if s := d.Second(); s != c.Second {
-				t.Errorf("Second = %d; want %d", s, c.Second)
-			}
-
-			if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
-				t.Errorf("Millisecond = %d; want %d (%d nanoseconds)", ms, c.MilliSecond, d.Nanosecond())
-			}
-
-			_, z := d.Zone()
-			if offset := float64(z) / 3600; offset != c.Zone {
-				t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
-			}
-		})
+		t.Run(
+			c.Using, func(t *testing.T) {
+				d, err := Parse([]byte(c.Using))
+				if c.CheckError(err, t) {
+					return
+				}
+				t.Log(d)
+				c.Check(d, t)
+			},
+		)
 
 	}
 }
 
 func TestParseString(t *testing.T) {
 	for _, c := range cases {
-		t.Run(c.Using, func(t *testing.T) {
-			d, err := ParseString(c.Using)
-			if c.CheckError(err, t) {
-				return
-			}
-			t.Log(d)
-
-			if y := d.Year(); y != c.Year {
-				t.Errorf("Year = %d; want %d", y, c.Year)
-			}
-			if m := int(d.Month()); m != c.Month {
-				t.Errorf("Month = %d; want %d", m, c.Month)
-			}
-			if d := d.Day(); d != c.Day {
-				t.Errorf("Day = %d; want %d", d, c.Day)
-			}
-			if h := d.Hour(); h != c.Hour {
-				t.Errorf("Hour = %d; want %d", h, c.Hour)
-			}
-			if m := d.Minute(); m != c.Minute {
-				t.Errorf("Minute = %d; want %d", m, c.Minute)
-			}
-			if s := d.Second(); s != c.Second {
-				t.Errorf("Second = %d; want %d", s, c.Second)
-			}
-
-			if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
-				t.Errorf("Millisecond = %d; want %d (%d nanoseconds)", ms, c.MilliSecond, d.Nanosecond())
-			}
-
-			_, z := d.Zone()
-			if offset := float64(z) / 3600; offset != c.Zone {
-				t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
-			}
-		})
-
+		t.Run(
+			c.Using, func(t *testing.T) {
+				d, err := ParseString(c.Using)
+				if c.CheckError(err, t) {
+					return
+				}
+				t.Log(d)
+				c.Check(d, t)
+			},
+		)
 	}
 }
 
@@ -427,5 +412,39 @@ func BenchmarkParse(b *testing.B) {
 		if err != nil {
 			b.Fatal(err)
 		}
+	}
+}
+
+func TestParseStringInLocation(t *testing.T) {
+	cases := []TestCase{
+		{
+			Using: "2017-04-24T09:41:34.502+05:45",
+			Year:  2017, Month: 4, Day: 24,
+			Hour: 9, Minute: 41, Second: 34,
+			MilliSecond: 502,
+			Zone:        5.75,
+		},
+		{
+			Using: "2017-04-24T09:41:34.502",
+			Year:  2017, Month: 4, Day: 24,
+			Hour: 9, Minute: 41, Second: 34,
+			MilliSecond: 502,
+			Zone:        5,
+		},
+	}
+
+	loc := time.FixedZone("UTC+5", 5*60*60)
+
+	for _, c := range cases {
+		t.Run(
+			c.Using, func(t *testing.T) {
+				d, err := ParseStringInLocation(c.Using, loc)
+				if c.CheckError(err, t) {
+					return
+				}
+				t.Log(d)
+				c.Check(d, t)
+			},
+		)
 	}
 }

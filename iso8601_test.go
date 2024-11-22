@@ -58,38 +58,38 @@ func (tc TestCase) CheckError(err error, t *testing.T) bool {
 	return false
 }
 
-func (c TestCase) Check(d time.Time, t *testing.T) {
-	if y := d.Year(); y != c.Year {
-		t.Errorf("Year = %d; want %d", y, c.Year)
+func (tc TestCase) Check(d time.Time, t *testing.T) {
+	if y := d.Year(); y != tc.Year {
+		t.Errorf("Year = %d; want %d", y, tc.Year)
 	}
-	if m := int(d.Month()); m != c.Month {
-		t.Errorf("Month = %d; want %d", m, c.Month)
+	if m := int(d.Month()); m != tc.Month {
+		t.Errorf("Month = %d; want %d", m, tc.Month)
 	}
-	if d := d.Day(); d != c.Day {
-		t.Errorf("Day = %d; want %d", d, c.Day)
+	if d := d.Day(); d != tc.Day {
+		t.Errorf("Day = %d; want %d", d, tc.Day)
 	}
-	if h := d.Hour(); h != c.Hour {
-		t.Errorf("Hour = %d; want %d", h, c.Hour)
+	if h := d.Hour(); h != tc.Hour {
+		t.Errorf("Hour = %d; want %d", h, tc.Hour)
 	}
-	if m := d.Minute(); m != c.Minute {
-		t.Errorf("Minute = %d; want %d", m, c.Minute)
+	if m := d.Minute(); m != tc.Minute {
+		t.Errorf("Minute = %d; want %d", m, tc.Minute)
 	}
-	if s := d.Second(); s != c.Second {
-		t.Errorf("Second = %d; want %d", s, c.Second)
+	if s := d.Second(); s != tc.Second {
+		t.Errorf("Second = %d; want %d", s, tc.Second)
 	}
 
-	if ms := d.Nanosecond() / 1000000; ms != c.MilliSecond {
+	if ms := d.Nanosecond() / 1000000; ms != tc.MilliSecond {
 		t.Errorf(
 			"Millisecond = %d; want %d (%d nanoseconds)",
 			ms,
-			c.MilliSecond,
+			tc.MilliSecond,
 			d.Nanosecond(),
 		)
 	}
 
 	_, z := d.Zone()
-	if offset := float64(z) / 3600; offset != c.Zone {
-		t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, c.Zone)
+	if offset := float64(z) / 3600; offset != tc.Zone {
+		t.Errorf("Zone = %.2f (%d); want %.2f", offset, z, tc.Zone)
 	}
 }
 
@@ -430,6 +430,13 @@ func TestParseStringInLocation(t *testing.T) {
 			Hour: 9, Minute: 41, Second: 34,
 			MilliSecond: 502,
 			Zone:        5,
+		},
+		{
+			Using: "2017-04-24T09:41:34.502Z",
+			Year:  2017, Month: 4, Day: 24,
+			Hour: 9, Minute: 41, Second: 34,
+			MilliSecond: 502,
+			Zone:        0,
 		},
 	}
 

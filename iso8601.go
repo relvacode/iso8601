@@ -27,6 +27,7 @@ const (
 // ParseISOZone parses the 5 character zone information in an ISO8601 date string.
 // This function expects input that matches:
 //
+//	Z, z (UTC)
 //	-0100
 //	+0100
 //	+01:00
@@ -35,11 +36,13 @@ const (
 //	+01:45
 //	+0145
 func ParseISOZone(inp []byte) (*time.Location, error) {
-	if len(inp) < 3 || len(inp) > 6 {
+	if len(inp) != 1 && (len(inp) < 3 || len(inp) > 6) {
 		return nil, ErrZoneCharacters
 	}
 	var neg bool
 	switch inp[0] {
+	case 'Z', 'z':
+		return time.UTC, nil
 	case '+':
 	case '-':
 		neg = true
@@ -134,7 +137,7 @@ parse:
 				continue
 			}
 			fallthrough
-		case '+':
+		case '+', 'Z':
 			if i == 0 {
 				// The ISO8601 technically allows signed year components.
 				// Go does not allow negative years, but let's allow a positive sign to be more compatible with the spec.
@@ -188,23 +191,6 @@ parse:
 			s = c
 			c = 0
 			p++
-		case 'Z':
-			switch p {
-			case hour:
-				h = c
-			case minute:
-				m = c
-			case second:
-				s = c
-			case millisecond:
-				fraction = int(c)
-			default:
-				return time.Time{}, newUnexpectedCharacterError(inp[i])
-			}
-			c = 0
-			if len(inp) != i+1 {
-				return time.Time{}, ErrRemainingData
-			}
 		default:
 			return time.Time{}, newUnexpectedCharacterError(inp[i])
 		}

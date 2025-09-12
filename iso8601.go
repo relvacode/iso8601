@@ -36,6 +36,10 @@ const (
 //	+01:45
 //	+0145
 func ParseISOZone(inp []byte) (*time.Location, error) {
+	if len(inp) == 0 {
+		return nil, ErrZoneCharacters
+	}
+
 	var neg bool
 	switch inp[0] {
 	case 'Z', 'z':

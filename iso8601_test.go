@@ -490,6 +490,10 @@ type ZoneTestCase struct {
 func TestParseISOZone(t *testing.T) {
 	var zoneTestCases = []ZoneTestCase{
 		{
+			Using:  "",
+			Expect: ErrZoneCharacters,
+		},
+		{
 			Using: "Z",
 			Zone:  0,
 		},

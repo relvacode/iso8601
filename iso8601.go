@@ -164,7 +164,7 @@ parse:
 				return time.Time{}, err
 			}
 			break parse
-		case 'T':
+		case 'T', ' ':
 			if p != day {
 				return time.Time{}, newUnexpectedCharacterError(inp[i])
 			}

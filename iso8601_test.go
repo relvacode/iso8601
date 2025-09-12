@@ -1,6 +1,7 @@
 package iso8601
 
 import (
+	"errors"
 	"testing"
 	"time"
 )
@@ -27,8 +28,8 @@ type TestCase struct {
 func (tc TestCase) CheckError(err error, t *testing.T) bool {
 	if err != nil {
 		if tc.ShouldInvalidRange {
-			re, ok := err.(*RangeError)
-			if !ok {
+			var re *RangeError
+			if !errors.As(err, &re) {
 				t.Fatalf("Found error %s of type %T but was expecting a RangeError", err, err)
 			}
 
@@ -333,6 +334,18 @@ var cases = []TestCase{
 		Using:           "2017-+04-24T09:41:34.502-00:00",
 		ShouldFailParse: true,
 	},
+	{
+		Using:           "2017-01-01T00:00:60.000Z+",
+		ShouldFailParse: true,
+	},
+	{
+		Using:           "2017-01-01T00:00:60.000Zz",
+		ShouldFailParse: true,
+	},
+	{
+		Using:           "2017-01-01T00:00:60.000Z00:00",
+		ShouldFailParse: true,
+	},
 
 	// Invalid Range Test Cases
 	{
@@ -465,5 +478,81 @@ func TestParseStringInLocation(t *testing.T) {
 				c.Check(d, t)
 			},
 		)
+	}
+}
+
+type ZoneTestCase struct {
+	Using  string
+	Zone   float64
+	Expect error
+}
+
+func TestParseISOZone(t *testing.T) {
+	var zoneTestCases = []ZoneTestCase{
+		{
+			Using: "Z",
+			Zone:  0,
+		},
+		{
+			Using: "z",
+			Zone:  0,
+		},
+		{
+			Using: "+00:00",
+			Zone:  0,
+		},
+		{
+			Using:  "00:00",
+			Expect: UnexpectedCharacterError{Character: '0'},
+		},
+		{
+			Using:  "-00:00",
+			Expect: ErrInvalidZone,
+		},
+		{
+			Using: "-05:30",
+			Zone:  -5.5,
+		},
+		{
+			Using: "+05:30",
+			Zone:  5.5,
+		},
+		{
+			Using: "-0530",
+			Zone:  -5.5,
+		},
+		{
+			Using:  "Zz",
+			Expect: ErrRemainingData,
+		},
+		{
+			Using:  "^",
+			Expect: UnexpectedCharacterError{Character: '^'},
+		},
+		{
+			Using: "-01",
+			Zone:  -1,
+		},
+	}
+
+	for _, tc := range zoneTestCases {
+		t.Run(tc.Using, func(t *testing.T) {
+			z, err := ParseISOZone([]byte(tc.Using))
+			if !errors.Is(err, tc.Expect) {
+				t.Errorf("ParseISOZone expected to return error %v (%T), got %v (%T)", tc.Expect, tc.Expect, err, err)
+				return
+			}
+
+			if tc.Expect != nil {
+				return
+			}
+
+			ts := time.Date(2024, 1, 1, 1, 1, 1, 0, z)
+			_, offset := ts.Zone()
+
+			if offset := float64(offset) / 3600; offset != tc.Zone {
+				t.Errorf("ParseISOZone expected to return zone %v, got %v", tc.Zone, offset)
+			}
+		})
 	}
 }

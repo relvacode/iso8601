@@ -59,14 +59,19 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 	}
 
 	var offset int
+	var hour int
+	var minute int
+	var sawMinute bool
 
 	var z uint
 	var multiplier = uint(3600) // start with initial multiplier of hours
 	for i := 1; i < len(inp); i++ {
 		if i == 3 { // next multiplier
+			hour = int(z)
 			offset = int(z * multiplier)
 			multiplier = 60 // multiplier for minutes
 			z = 0
+			sawMinute = true
 		} else { // next digit
 			z = z * 10
 		}
@@ -84,7 +89,18 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 
 	}
 
+	if sawMinute {
+		minute = int(z)
+	} else {
+		hour = int(z)
+	}
 	offset += int(z * multiplier)
+
+	// ISO 8601 offset hours are 00-23 and minutes are 00-59.
+	// A minute of 60 must not roll into the next hour.
+	if hour > 23 || minute > 59 {
+		return nil, ErrInvalidZone
+	}
 
 	if neg {
 		offset = -offset

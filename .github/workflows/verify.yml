@@ -25,9 +25,9 @@ jobs:
         run: go vet ./...
 
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.64
+          version: v2.14.0
 
       - name: Run tests
         run: go test -race -vet=off -json ./... > TestResults.json

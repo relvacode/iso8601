@@ -11,7 +11,7 @@ func null(b []byte) bool {
 	if len(b) != 4 {
 		return false
 	}
-	if b[0] != 'n' && b[1] != 'u' && b[2] != 'l' && b[3] != 'l' {
+	if b[0] != 'n' || b[1] != 'u' || b[2] != 'l' || b[3] != 'l' {
 		return false
 	}
 	return true

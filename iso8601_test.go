@@ -335,6 +335,14 @@ var cases = []TestCase{
 		ShouldFailParse: true,
 	},
 	{
+		Using:           "2020-01-01T00:00:00+01:60",
+		ShouldFailParse: true,
+	},
+	{
+		Using:           "2020-01-01T00:00:00+24:00",
+		ShouldFailParse: true,
+	},
+	{
 		Using:           "2017-01-01T00:00:60.000Z+",
 		ShouldFailParse: true,
 	},
@@ -536,6 +544,26 @@ func TestParseISOZone(t *testing.T) {
 		{
 			Using: "-01",
 			Zone:  -1,
+		},
+		{
+			Using: "+23:00",
+			Zone:  23,
+		},
+		{
+			Using:  "+01:60",
+			Expect: ErrInvalidZone,
+		},
+		{
+			Using:  "+00:60",
+			Expect: ErrInvalidZone,
+		},
+		{
+			Using:  "+0160",
+			Expect: ErrInvalidZone,
+		},
+		{
+			Using:  "+24:00",
+			Expect: ErrInvalidZone,
 		},
 	}
 

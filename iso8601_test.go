@@ -588,3 +588,36 @@ func TestParseISOZone(t *testing.T) {
 		})
 	}
 }
+
+func TestParseFractionPrecision(t *testing.T) {
+	valid := map[string]int{
+		"2017-04-24T09:41:34.5Z":         500000000,
+		"2017-04-24T09:41:34.000000001Z": 1,
+		"2017-04-24T09:41:34.123456789Z": 123456789,
+	}
+	for in, want := range valid {
+		d, err := ParseString(in)
+		if err != nil {
+			t.Fatalf("ParseString(%q): %v", in, err)
+		}
+		if d.Nanosecond() != want {
+			t.Errorf("ParseString(%q) nanoseconds = %d, want %d", in, d.Nanosecond(), want)
+		}
+	}
+
+	tooPrecise := []string{
+		"2017-04-24T09:41:34.1234567891Z",
+		// Leading zeros keep the accumulated value small, but the digits
+		// still describe sub-nanosecond precision (0.1ns, not 1ns).
+		"2017-04-24T09:41:34.0000000001Z",
+		"2017-04-24T09:41:34.00000000012",
+		// 2^64+1: overflows the accumulator back to 1.
+		"2017-04-24T09:41:34.18446744073709551617Z",
+	}
+	for _, in := range tooPrecise {
+		d, err := ParseString(in)
+		if !errors.Is(err, ErrPrecision) {
+			t.Errorf("ParseString(%q) = %v, %v; want ErrPrecision", in, d, err)
+		}
+	}
+}

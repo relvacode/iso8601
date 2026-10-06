@@ -162,3 +162,29 @@ func BenchmarkCheckNull(b *testing.B) {
 		}
 	})
 }
+
+func TestTime_UnmarshalJSONShortStrings(t *testing.T) {
+	initial := time.Date(2024, 3, 7, 0, 0, 0, 0, time.UTC)
+	for _, tc := range []struct {
+		input   string
+		want    time.Time
+		wantErr bool
+	}{
+		{input: `"ul"`, wantErr: true},
+		{input: `"u0"`, wantErr: true},
+		{input: `"0l"`, wantErr: true},
+		{input: `"10"`, want: time.Date(10, 1, 1, 0, 0, 0, 0, time.UTC)},
+		{input: `null`, want: initial},
+	} {
+		t.Run(tc.input, func(t *testing.T) {
+			value := Time{Time: initial}
+			err := json.Unmarshal([]byte(tc.input), &value)
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("Unmarshal(%s) error = %v, want error = %t", tc.input, err, tc.wantErr)
+			}
+			if err == nil && !value.Equal(tc.want) {
+				t.Errorf("Unmarshal(%s) = %v, want %v", tc.input, value.Time, tc.want)
+			}
+		})
+	}
+}

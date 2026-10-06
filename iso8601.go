@@ -281,8 +281,12 @@ parse:
 		}
 	}
 
-	// Get the seconds fraction as nanoseconds
-	if fraction < 0 || 1e9 <= fraction {
+	// Get the seconds fraction as nanoseconds.
+	// More than nine digits cannot be represented in nanoseconds. Checking the
+	// digit count (not just the value) also catches leading zeros such as
+	// `.0000000001`, which would otherwise be read as 1ns, and long fractions
+	// that overflow the accumulator.
+	if nfraction-1 > 9 || fraction < 0 || 1e9 <= fraction {
 		return time.Time{}, ErrPrecision
 	}
 	scale := 10 - nfraction

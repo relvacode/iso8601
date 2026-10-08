@@ -1,6 +1,7 @@
 package iso8601
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -584,6 +585,68 @@ func TestParseISOZone(t *testing.T) {
 
 			if offset := float64(offset) / 3600; offset != tc.Zone {
 				t.Errorf("ParseISOZone expected to return zone %v, got %v", tc.Zone, offset)
+			}
+		})
+	}
+}
+
+func TestParseISOZoneLayouts(t *testing.T) {
+	invalid := []string{
+		"+013", "-013",
+		"+01:", "-01:",
+		"+01:3", "-01:3",
+		"+01003", "-01003",
+		"+01000", "-01000",
+		"+000", "-000",
+		"+00:", "-00:",
+		"+00:0", "-00:0",
+	}
+	for _, zone := range invalid {
+		t.Run(zone, func(t *testing.T) {
+			loc, err := ParseISOZone([]byte(zone))
+			if err == nil || loc != nil {
+				t.Errorf("ParseISOZone(%q) = %v, %v; want nil location and error", zone, loc, err)
+			}
+
+			input := "2024-01-02T03:04:05" + zone
+			if got, err := ParseString(input); err == nil {
+				t.Errorf("ParseString(%q) = %v; want error", input, got)
+			}
+
+			var got Time
+			if err := json.Unmarshal([]byte(`"`+input+`"`), &got); err == nil {
+				t.Errorf("UnmarshalJSON(%q) = %v; want error", input, got)
+			}
+		})
+	}
+
+	valid := []struct {
+		zone   string
+		offset int
+	}{
+		{"Z", 0},
+		{"z", 0},
+		{"+00", 0},
+		{"+0000", 0},
+		{"+00:00", 0},
+		{"+01", 3600},
+		{"-01", -3600},
+		{"+0145", 6300},
+		{"-0145", -6300},
+		{"+01:45", 6300},
+		{"-01:45", -6300},
+		{"+23:59", 86340},
+		{"-23:59", -86340},
+	}
+	for _, tc := range valid {
+		t.Run(tc.zone, func(t *testing.T) {
+			loc, err := ParseISOZone([]byte(tc.zone))
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, offset := time.Date(2024, 1, 2, 3, 4, 5, 0, loc).Zone()
+			if offset != tc.offset {
+				t.Errorf("ParseISOZone(%q) offset = %d; want %d", tc.zone, offset, tc.offset)
 			}
 		})
 	}

@@ -150,7 +150,7 @@ parse:
 				nfraction++
 			}
 		case '-':
-			if p < hour {
+			if p < hour && !(p == year && n == 8) {
 				if n == 0 {
 					// A dash with no preceding digits (e.g. `2020--01`).
 					return time.Time{}, newUnexpectedCharacterError(inp[i])
@@ -178,6 +178,13 @@ parse:
 			}
 
 			switch p {
+			case year:
+				if n != 8 {
+					return time.Time{}, newUnexpectedCharacterError(inp[i])
+				}
+				Y = c / 10000
+				M = (c / 100) % 100
+				d = c % 100
 			case month:
 				// A three-digit component after the year is an ISO 8601 ordinal
 				// day-of-year (YYYY-DDD), not a month.
@@ -187,6 +194,8 @@ parse:
 				M = 1
 				d = c
 				ordinal = true
+			case day:
+				d = c
 			case hour:
 				h = c
 			case minute:
@@ -215,6 +224,10 @@ parse:
 				M = 1
 				d = c
 				ordinal = true
+			case p == year && n == 8:
+				Y = c / 10000
+				M = (c / 100) % 100
+				d = c % 100
 			default:
 				return time.Time{}, newUnexpectedCharacterError(inp[i])
 			}
@@ -259,9 +272,16 @@ parse:
 		M = 1
 		d = c
 		ordinal = true
+	} else if p == year && n == 8 {
+		Y = c / 10000
+		M = (c / 100) % 100
+		d = c % 100
 	} else if c > 0 {
 		switch p {
 		case year:
+			if n == 6 {
+				return time.Time{}, newUnexpectedCharacterError(inp[len(inp)-1])
+			}
 			Y = c
 			M = 1
 			d = 1

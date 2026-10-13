@@ -238,7 +238,8 @@ parse:
 			c = 0
 			n = 0
 			p++
-		case '.':
+		case '.', ',':
+			// ISO 8601 allows either a full stop or a comma as the decimal sign.
 			if p != second || n == 0 {
 				return time.Time{}, newUnexpectedCharacterError(inp[i])
 			}

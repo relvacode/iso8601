@@ -621,3 +621,30 @@ func TestParseFractionPrecision(t *testing.T) {
 		}
 	}
 }
+
+// ISO 8601 allows a comma as the decimal sign for the seconds fraction,
+// and lists it as the preferred sign.
+func TestParseFractionComma(t *testing.T) {
+	cases := map[string]time.Time{
+		"2017-04-24T09:41:34,5Z":         time.Date(2017, 4, 24, 9, 41, 34, 500000000, time.UTC),
+		"2017-04-24T09:41:34,123456789Z": time.Date(2017, 4, 24, 9, 41, 34, 123456789, time.UTC),
+		"2017-04-24T09:41:34,25+01:00":   time.Date(2017, 4, 24, 9, 41, 34, 250000000, time.FixedZone("", 3600)),
+		"2017-04-24 09:41:34,5":          time.Date(2017, 4, 24, 9, 41, 34, 500000000, time.UTC),
+	}
+	for in, want := range cases {
+		d, err := ParseString(in)
+		if err != nil {
+			t.Fatalf("ParseString(%q): %v", in, err)
+		}
+		if !d.Equal(want) {
+			t.Errorf("ParseString(%q) = %v, want %v", in, d, want)
+		}
+	}
+
+	// A comma is only a decimal sign after the seconds.
+	for _, in := range []string{"2017-04-24T09:41,5Z", "2017,04-24"} {
+		if d, err := ParseString(in); err == nil {
+			t.Errorf("ParseString(%q) = %v; want an error", in, d)
+		}
+	}
+}

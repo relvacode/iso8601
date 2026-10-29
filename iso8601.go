@@ -24,7 +24,7 @@ const (
 	charStart uint = '0'
 )
 
-// ParseISOZone parses the 5 character zone information in an ISO8601 date string.
+// ParseISOZone parses the zone information in an ISO8601 date string.
 // This function expects input that matches:
 //
 //	Z, z (UTC)
@@ -54,8 +54,11 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 		return nil, newUnexpectedCharacterError(inp[0])
 	}
 
-	if len(inp) < 3 || len(inp) > 6 {
+	if len(inp) != 3 && len(inp) != 5 && len(inp) != 6 {
 		return nil, ErrZoneCharacters
+	}
+	if len(inp) == 6 && inp[3] != ':' {
+		return nil, newUnexpectedCharacterError(inp[3])
 	}
 
 	var offset int
@@ -82,6 +85,9 @@ func ParseISOZone(inp []byte) (*time.Location, error) {
 		case ':':
 			if i != 3 {
 				return nil, newUnexpectedCharacterError(inp[i])
+			}
+			if len(inp) != 6 {
+				return nil, ErrZoneCharacters
 			}
 		default:
 			return nil, newUnexpectedCharacterError(inp[i])

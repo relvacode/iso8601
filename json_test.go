@@ -170,6 +170,7 @@ func TestTime_UnmarshalJSONShortStrings(t *testing.T) {
 		want    time.Time
 		wantErr bool
 	}{
+		{input: `"`, wantErr: true},
 		{input: `"ul"`, wantErr: true},
 		{input: `"u0"`, wantErr: true},
 		{input: `"0l"`, wantErr: true},
@@ -186,5 +187,37 @@ func TestTime_UnmarshalJSONShortStrings(t *testing.T) {
 				t.Errorf("Unmarshal(%s) = %v, want %v", tc.input, value.Time, tc.want)
 			}
 		})
+	}
+}
+
+func TestTime_UnmarshalJSONDirect(t *testing.T) {
+	for _, b := range [][]byte{
+		nil,
+		{},
+		{'"'},
+		{'"', 'a'},
+		{'a', '"'},
+	} {
+		var v Time
+		err := v.UnmarshalJSON(b)
+		if err != ErrNotString {
+			t.Fatalf("expected ErrNotString for %q, got %v", b, err)
+		}
+	}
+}
+
+func TestTime_UnmarshalText(t *testing.T) {
+	var v Time
+	err := v.UnmarshalText([]byte("2017-04-26T11:13:04+0100"))
+	if err != nil {
+		t.Fatalf("UnmarshalText failed: %v", err)
+	}
+	if v.Year() != 2017 || v.Month() != 4 || v.Day() != 26 || v.Hour() != 11 || v.Minute() != 13 || v.Second() != 4 {
+		t.Fatalf("unexpected unmarshaled time: %v", v)
+	}
+
+	var invalid Time
+	if err := invalid.UnmarshalText([]byte("invalid-date")); err == nil {
+		t.Fatalf("expected error unmarshaling invalid text, got nil")
 	}
 }

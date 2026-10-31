@@ -183,6 +183,10 @@ parse:
 				continue
 			}
 
+			if n == 0 && p >= minute {
+				return time.Time{}, newUnexpectedCharacterError(inp[i])
+			}
+
 			switch p {
 			case month:
 				// A three-digit component after the year is an ISO 8601 ordinal
@@ -256,6 +260,10 @@ parse:
 		default:
 			return time.Time{}, newUnexpectedCharacterError(inp[i])
 		}
+	}
+
+	if i == len(inp) && n == 0 && p >= minute {
+		return time.Time{}, newUnexpectedCharacterError(inp[len(inp)-1])
 	}
 
 	// Capture remaining data
